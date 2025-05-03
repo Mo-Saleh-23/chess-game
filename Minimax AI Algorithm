@@ -1,0 +1,53 @@
+def evaluate_board(board):
+    flat = sum(board, [])
+    if "CK" not in flat:
+        return -100
+    elif "PK" not in flat:
+        return 100
+    return 0
+
+def generate_moves(board, position, piece_code, is_rook=False):
+    directions = ["up", "down", "left", "right"]
+    moves = []
+    for direction in directions:
+        temp_board = [row[:] for row in board]
+        new_pos, _ = move_piece(temp_board, position, direction, piece_code, is_rook)
+        if new_pos != position:
+            moves.append((new_pos, direction))
+    return moves
+
+def minimax(board, ai_king, ai_rook, player_king, player_rook, depth, is_maximizing):
+    score = evaluate_board(board)
+    if depth == 0 or abs(score) == 100:
+        return score
+
+    if is_maximizing:
+        max_eval = float("-inf")
+        for piece, pos, is_rook in [("CK", ai_king, False), ("CR", ai_rook, True)]:
+            moves = generate_moves(board, pos, piece, is_rook)
+            for new_pos, direction in moves:
+                new_board = [row[:] for row in board]
+                temp_pos, _ = move_piece(new_board, pos, direction, piece, is_rook)
+                eval = minimax(
+                    new_board,
+                    temp_pos if piece == "CK" else ai_king,
+                    temp_pos if piece == "CR" else ai_rook,
+                    player_king, player_rook,
+                    depth - 1, False)
+                max_eval = max(max_eval, eval)
+        return max_eval
+    else:
+        min_eval = float("inf")
+        for piece, pos, is_rook in [("PK", player_king, False), ("PR", player_rook, True)]:
+            moves = generate_moves(board, pos, piece, is_rook)
+            for new_pos, direction in moves:
+                new_board = [row[:] for row in board]
+                temp_pos, _ = move_piece(new_board, pos, direction, piece, is_rook)
+                eval = minimax(
+                    new_board,
+                    ai_king, ai_rook,
+                    temp_pos if piece == "PK" else player_king,
+                    temp_pos if piece == "PR" else player_rook,
+                    depth - 1, True)
+                min_eval = min(min_eval, eval)
+        return min_eval
