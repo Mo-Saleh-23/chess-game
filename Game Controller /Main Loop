@@ -1,0 +1,71 @@
+def start_game():
+    board = init_board()
+    player_king = [7, 4]
+    player_rook = [7, 0]
+    ai_king = [0, 4]
+    ai_rook = [0, 7]
+
+    mode = get_valid_input("Choose mode (1: Player vs Player, 2: Player vs AI): ", ["1", "2"])
+    print("\nDirections: up / down / left / right")
+    print_board(board)
+
+    while True:
+        # --- Player 1 turn ---
+        piece = get_valid_input("Player 1 - Choose piece (king or rook): ", ["king", "rook"])
+        direction = get_valid_input("Player 1 - Move direction: ", ["up", "down", "left", "right"])
+
+        if piece == "king":
+            new_pos, result = move_piece(board, player_king, direction, "PK")
+            if new_pos != player_king:
+                player_king = new_pos
+        else:
+            new_pos, result = move_piece(board, player_rook, direction, "PR", is_rook=True)
+            if new_pos != player_rook:
+                player_rook = new_pos
+
+        if result == "win":
+            print_board(board)
+            print("Player 1 wins!")
+            break
+        elif result == "lose":
+            print_board(board)
+            print("Player 1 loses!")
+            break
+
+        print_board(board)
+
+        # --- Player 2 or AI turn ---
+        if mode == "1":
+            piece = get_valid_input("Player 2 - Choose piece (king or rook): ", ["king", "rook"])
+            direction = get_valid_input("Player 2 - Move direction: ", ["up", "down", "left", "right"])
+
+            if piece == "king":
+                new_pos, result = move_piece(board, ai_king, direction, "CK")
+                if new_pos != ai_king:
+                    ai_king = new_pos
+            else:
+                new_pos, result = move_piece(board, ai_rook, direction, "CR", is_rook=True)
+                if new_pos != ai_rook:
+                    ai_rook = new_pos
+        else:
+            print("AI is thinking...")
+            piece_code, new_pos, result = minimax_ai_turn(board, ai_king, ai_rook, player_king, player_rook)
+            if piece_code == "CK" and new_pos:
+                ai_king = new_pos
+            elif piece_code == "CR" and new_pos:
+                ai_rook = new_pos
+
+        if result == "win":
+            print_board(board)
+            print("Player 2 wins!" if mode == "1" else "AI wins!")
+            break
+        elif result == "lose":
+            print_board(board)
+            print("Player 2 loses!" if mode == "1" else "You win!")
+            break
+
+        print_board(board)
+
+    print("Game Over.")
+
+start_game()
