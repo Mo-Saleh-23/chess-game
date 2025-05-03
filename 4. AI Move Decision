@@ -1,0 +1,22 @@
+def minimax_ai_turn(board, ai_king, ai_rook, player_king, player_rook):
+    best_score = float("-inf")
+    best_move = None
+    for piece, pos, is_rook in [("CK", ai_king, False), ("CR", ai_rook, True)]:
+        moves = generate_moves(board, pos, piece, is_rook)
+        for new_pos, direction in moves:
+            temp_board = [row[:] for row in board]
+            temp_pos, result = move_piece(temp_board, pos, direction, piece, is_rook)
+            score = minimax(temp_board,
+                            temp_pos if piece == "CK" else ai_king,
+                            temp_pos if piece == "CR" else ai_rook,
+                            player_king, player_rook,
+                            depth=2, is_maximizing=False)
+            if score > best_score:
+                best_score = score
+                best_move = (piece, pos, direction, is_rook)
+
+    if best_move:
+        piece, pos, direction, is_rook = best_move
+        new_pos, result = move_piece(board, pos, direction, piece, is_rook)
+        return piece, new_pos, result
+    return None, None, None
