@@ -1,0 +1,6 @@
+def get_valid_input(prompt, options):
+    while True:
+        choice = input(prompt).strip().lower()
+        if choice in options:
+            return choice
+        print("Invalid input, try again."
